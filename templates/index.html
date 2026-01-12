@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zadanie Statystyczne - Raport</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        body {
+            background-color: #f4f4f4;
+            padding-bottom: 120px; /* Miejsce na dolny pasek */
+        }
+        .report-container {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt;
+            line-height: 1.5;
+            color: #000;
+            background: white;
+            padding: 40px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            max-width: 900px;
+            margin: 20px auto;
+        }
+        input[type="text"] {
+            border: 1px solid #aaa;
+            padding: 2px 4px;
+            margin: 0 2px;
+            border-radius: 3px;
+            text-align: center;
+            font-family: inherit;
+            background-color: #f8fbff;
+            color: #000;
+            font-size: 11pt;
+            transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+        }
+        input[type="text"]:focus {
+            background-color: #e8f0fe;
+            border-color: #0d6efd;
+            outline: none;
+        }
+        select {
+            border: 1px solid #aaa;
+            padding: 2px;
+            margin: 0 2px;
+            border-radius: 3px;
+            font-family: inherit;
+            background-color: #f8fbff;
+            cursor: pointer;
+            font-size: 11pt;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .w-sm { width: 60px; }
+        .w-md { width: 90px; }
+        .apa-table {
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            border-collapse: collapse;
+            border-top: 2px solid black;
+            border-bottom: 2px solid black;
+            text-align: center;
+            margin-bottom: 1em;
+        }
+        .apa-table th {
+            border-bottom: 1px solid black;
+            padding: 8px;
+            font-weight: normal;
+            font-style: italic;
+        }
+        .apa-table td { padding: 8px; }
+        .text-indent { text-indent: 1.27cm; }
+        
+        .instruction-panel {
+            background-color: #f0f2f5;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border-left: 5px solid #0d6efd;
+            font-family: Arial, sans-serif;
+        }
+        .admin-panel {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+        .fixed-var {
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* --- DOLNY PASEK NARZĘDZIOWY --- */
+        .bottom-action-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #ffffff;
+            border-top: 1px solid #e0e0e0;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
+            padding: 15px 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .score-badge {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #6c757d;
+            background-color: #f8f9fa;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid #dee2e6;
+            min-width: 150px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        /* --- STYLE WALIDACJI --- */
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        .correct {
+            border-color: #22c55e !important;
+            background-color: #f0fdf4 !important;
+            color: #15803d !important;
+            font-weight: bold;
+            pointer-events: none;
+        }
+        .incorrect {
+            border-color: #ef4444 !important;
+            background-color: #fef2f2 !important;
+            color: #b91c1c !important;
+            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        /* --- MODAL --- */
+        #resultModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1050;
+            display: none; /* Ukryty standardowo */
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content-custom {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 90%;
+            position: relative;
+            z-index: 1051;
+        }
+        
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(2px);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1050;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <!-- Panel nawigacyjny -->
+    <div class="instruction-panel mt-4 max-width-900 mx-auto" style="max-width: 900px;">
+        <h4 class="text-center mb-4">Zadanie dla studenta: <strong>{{ user_id }}</strong></h4>
+        
+        <div class="row mb-3">
+            <div class="col-md-7">
+                <p class="mb-2"><strong>Instrukcja:</strong></p>
+                <ol class="small mb-0">
+                    <li class="mb-1">Pobierz plik z danymi (CSV lub SAV).</li>
+                    <li class="mb-1">Otwórz go w swoim programie statystycznym.</li>
+                    <li class="mb-1">Oblicz statystyki opisowe oraz korelacje.</li>
+                    <li>Uzupełnij raport poniżej. Pamiętaj o gwiazdkach istotności (np. <code>0,45*</code>).</li>
+                </ol>
+            </div>
+            <div class="col-md-5 d-flex flex-column justify-content-center gap-2 border-start ps-4">
+                <a href="{{ url_for('pobierz_csv') }}" class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2">📥 Pobierz dane (.csv)</a>
+                <a href="{{ url_for('pobierz_sav') }}" class="btn btn-info btn-sm text-white w-100 d-flex align-items-center justify-content-center gap-2">📊 Pobierz dane (.sav)</a>
+            </div>
+        </div>
+
+        {% if request.args.get('admin') == '1234' %}
+        <div class="admin-panel mt-3">
+            <form action="{{ url_for('index', admin='1234') }}" method="POST" class="d-flex align-items-center gap-2">
+                <span><strong>Admin Panel:</strong> Masz już ID?</span>
+                <input type="text" name="manual_id" placeholder="Wpisz ID" class="form-control form-control-sm" style="width: 150px; background: white;" />
+                <button type="submit" class="btn btn-sm btn-outline-dark">Zmień ID</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Główny formularz raportu -->
+    <form id="statsForm">
+        <div class="report-container">
+            
+            <h2 style="text-align: center; font-weight: bold; font-size: 12pt; margin-top: 0; margin-bottom: 1em;">Wyniki</h2>
+
+            <!-- SEKCJA 1: STATYSTYKI OPISOWE -->
+            <div style="margin-bottom: 30px;">
+                <h3 style="text-align: left; font-weight: bold; font-size: 12pt; margin-top: 0; margin-bottom: 1em;">Statystyki opisowe</h3>
+                <p class="text-indent" style="margin-bottom: 1em;">W celu udzielenia odpowiedzi na postawione hipotezy badawcze przeprowadzono analizy statystyczne przy użyciu pakietu IBM SPSS Statistics 29. Wyniki dla wszystkich zmiennych Wielkiej Piątki prezentuje Tabela 1.</p>
+
+                <strong style="display: block;">Tabela 1</strong>
+                <span style="font-style: italic; display: block; margin-bottom: 1em;">Statystyki opisowe wraz testem normalności rozkładu</span>
+                
+                <table class="apa-table">
+                    <thead>
+                        <tr>
+                            <th style="text-align: left; font-style: normal;">Zmienna</th>
+                            <th>M</th>
+                            <th>Mdn</th>
+                            <th>SD</th>
+                            <th>Sk.</th>
+                            <th>Kurt.</th>
+                            <th>Min.</th>
+                            <th>Maks.</th>
+                            <th>D</th>
+                            <th>p</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for var, label in [('ekstra', 'ekstrawersja'), ('neuro', 'neurotyzm'), ('otwar', 'otwartość'), ('ugoda', 'ugodowość'), ('sumien', 'sumienność')] %}
+                        <tr>
+                            <td style="text-align: left;">{{ label }}</td>
+                            {% for suffix in ['m', 'mdn', 'sd', 'sk', 'kurt', 'min', 'max', 'd', 'p'] %}
+                            <td><input type="text" name="{{ var }}_{{ suffix }}" class="w-sm quiz-input" data-answer="{{ answers[var + '_' + suffix] }}" required /></td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <p style="font-size: 10pt; margin-top: 10px;"><em>Adnotacja: M - średnia; Mdn - mediana; SD - odchylenie standardowe; Sk. - skośność; Kurt. - kurtoza; Min. - wartość minimalna; Maks. - wartość maksymalna; D - statystyka testowa testu Kołmogorowa-Smirnowa; p - istotność testu Kołmogorowa-Smirnowa.</em></p>
+            </div>
+
+            <!-- SEKCJA 2: WERYFIKACJA HIPOTEZ -->
+            <div style="margin-bottom: 30px;">
+                <h3 style="text-align: left; font-weight: bold; font-size: 12pt; margin-top: 0; margin-bottom: 1em;">Weryfikacja hipotez</h3>
+                <p class="text-indent" style="margin-bottom: 1em;">
+                    W celu weryfikacji hipotez, przeprowadzono analizę korelacji 
+                    <select name="korelacja_typ" class="quiz-input" data-answer="{{ answers['korelacja_typ'] }}">
+                        <option value="">--wybierz--</option>
+                        <option value="r-Pearsona">r-Pearsona</option>
+                        <option value="rho-Spearmana">rho-Spearmana</option>
+                    </select>, ze względu na 
+                    <select name="rozklad_typ" class="quiz-input" data-answer="{{ answers['rozklad_typ'] }}">
+                        <option value="">--wybierz--</option>
+                        <option value="spełnienie">spełnienie</option>
+                        <option value="niespełnienie">niespełnienie</option>
+                    </select> założeń normalności rozkładu. Wyniki analizy korelacji przedstawiono w Tabeli 2.
+                </p>
+                
+                {% for i in range(1, 5) %}
+                <p class="text-indent" style="margin-bottom: 1em;">
+                    {% if i == 1 %}Analiza statystyczna wykazała{% elif i == 2 %}Zaobserwowano również{% elif i == 3 %}Ponadto, dane ujawniły{% else %}Analizy wykazały{% endif %}
+                    <select name="h{{i}}_sila" class="quiz-input" data-answer="{{ answers['h' ~ i ~ '_sila'] }}"><option value="">--wybierz--</option><option value="silny">silny</option><option value="umiarkowany">umiarkowany</option><option value="słaby">słaby</option><option value="brak">brak</option></select> 
+                    <select name="h{{i}}_kierunek" class="quiz-input" data-answer="{{ answers['h' ~ i ~ '_kierunek'] }}"><option value="">--wybierz--</option><option value="pozytywny">pozytywny</option><option value="negatywny">negatywny</option><option value="związku">związku</option></select> 
+                    związek między <span class="fixed-var">
+                        {% if i == 1 %}ekstrawersją</span> a <span class="fixed-var">neurotyzmem{% elif i == 2 %}ekstrawersją</span> a <span class="fixed-var">otwartością{% elif i == 3 %}neurotyzmem</span> a <span class="fixed-var">otwartością{% else %}ekstrawersją</span> a <span class="fixed-var">ugodowością{% endif %}</span>, co 
+                    <select name="h{{i}}_decyzja" class="quiz-input" data-answer="{{ answers['h' ~ i ~ '_decyzja'] }}"><option value="">--wybierz--</option><option value="potwierdza">potwierdza</option><option value="nie potwierdza">nie potwierdza</option></select> H{{i}}.
+                </p>
+                {% endfor %}
+            </div>
+
+            <!-- SEKCJA 3: TABELA WYNIKI KORELACJI -->
+            <div style="margin-bottom: 30px;">
+                <strong style="display: block;">Tabela 2</strong>
+                <span style="font-style: italic; display: block; margin-bottom: 1em;">Macierz korelacji rho Spearmana dla wymiarów Wielkiej Piątki</span>
+                <table class="apa-table" style="max-width: 800px;">
+                    <thead>
+                        <tr>
+                            <th style="text-align: left; font-style: normal;">Wymiar</th>
+                            <th>ekstrawersja</th>
+                            <th>neurotyzm</th>
+                            <th>otwartość</th>
+                            <th>ugodowość</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="text-align: left;">neurotyzm</td>
+                            <td><input type="text" name="corr_neuro_ekstra" class="w-md quiz-input" data-answer="{{ answers['corr_neuro_ekstra'] }}" /></td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;">otwartość</td>
+                            <td><input type="text" name="corr_otwar_ekstra" class="w-md quiz-input" data-answer="{{ answers['corr_otwar_ekstra'] }}" /></td>
+                            <td><input type="text" name="corr_otwar_neuro" class="w-md quiz-input" data-answer="{{ answers['corr_otwar_neuro'] }}" /></td>
+                            <td>-</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;">ugodowość</td>
+                            <td><input type="text" name="corr_ugoda_ekstra" class="w-md quiz-input" data-answer="{{ answers['corr_ugoda_ekstra'] }}" /></td>
+                            <td><input type="text" name="corr_ugoda_neuro" class="w-md quiz-input" data-answer="{{ answers['corr_ugoda_neuro'] }}" /></td>
+                            <td><input type="text" name="corr_ugoda_otwar" class="w-md quiz-input" data-answer="{{ answers['corr_ugoda_otwar'] }}" /></td>
+                            <td>-</td>
+                        </tr>
+                         <tr>
+                            <td style="text-align: left;">sumienność</td>
+                            <td><input type="text" name="corr_sumien_ekstra" class="w-md quiz-input" data-answer="{{ answers['corr_sumien_ekstra'] }}" /></td>
+                            <td><input type="text" name="corr_sumien_neuro" class="w-md quiz-input" data-answer="{{ answers['corr_sumien_neuro'] }}" /></td>
+                            <td><input type="text" name="corr_sumien_otwar" class="w-md quiz-input" data-answer="{{ answers['corr_sumien_otwar'] }}" /></td>
+                            <td><input type="text" name="corr_sumien_ugoda" class="w-md quiz-input" data-answer="{{ answers['corr_sumien_ugoda'] }}" /></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p style="font-size: 10pt; margin-top: 10px;"><em>Uwaga.</em> *&nbsp;<i>p</i>&nbsp;&lt;&nbsp;0,05; **&nbsp;<i>p</i>&nbsp;&lt;&nbsp;0,01; ***&nbsp;<i>p</i>&nbsp;&lt;&nbsp;0,001.</p>
+            </div>
+            
+        </div>
+    </form>
+</div>
+
+<!-- DOLNY PASEK NARZĘDZIOWY -->
+<div class="bottom-action-bar">
+    <div id="scoreDisplay" class="score-badge">Wynik: --%</div>
+    <button type="button" onclick="checkAnswers()" class="btn btn-success btn-lg shadow-sm">✅ Sprawdź!</button>
+    <button type="button" onclick="exportToWord()" class="btn btn-primary btn-lg shadow-sm">💾 Zapisz do Worda</button>
+</div>
+
+<!-- MODAL / POPUP -->
+<div id="resultModal" class="fixed-top h-100 w-100" style="display: none; z-index: 1050;">
+    <div class="modal-overlay" onclick="closeModal()"></div>
+    <div class="d-flex justify-content-center align-items-center h-100">
+        <div class="modal-content-custom">
+            <div id="modalIcon" class="mb-3"></div>
+            <h2 id="modalTitle" class="h3 fw-bold mb-2">Wynik</h2>
+            <p id="modalMessage" class="text-muted mb-4">Twój wynik to...</p>
+            <button onclick="closeModal()" class="btn btn-primary w-100">OK</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- SKRYPTY ---
+    
+    document.addEventListener("DOMContentLoaded", function() {
+        try {
+            restoreFormData();
+        } catch(e) {}
+
+        const form = document.getElementById('statsForm');
+        if(form) {
+            form.addEventListener('input', saveFormData);
+        }
+    });
+
+    // Funkcja walidująca
+    function checkAnswers() {
+        try {
+            const inputs = document.querySelectorAll('.quiz-input');
+            let correctCount = 0;
+            let totalInputs = inputs.length;
+
+            if (totalInputs === 0) {
+                alert("Błąd: Nie znaleziono pól do sprawdzenia.");
+                return;
+            }
+
+            // ADMIN MODE check
+            const urlParams = new URLSearchParams(window.location.search);
+            const isAdmin = urlParams.get('admin') === '1234';
+
+            inputs.forEach(input => {
+                const correctVal = input.dataset.answer;
+                const userAnswer = input.value.trim();
+                const inputName = input.name;
+                
+                // ADMIN LOGIC (Auto-fill)
+                if (isAdmin && correctVal) {
+                    fillCorrectAnswer(input, correctVal);
+                    correctCount++;
+                } 
+                // USER LOGIC (Check)
+                else {
+                    input.classList.remove('incorrect'); // Reset
+
+                    // Jeśli już poprawne, licz jako poprawne
+                    if (input.classList.contains('correct')) {
+                        correctCount++;
+                        return;
+                    }
+
+                    if (isCorrect(userAnswer, correctVal, inputName)) {
+                        input.classList.add('correct');
+                        input.readOnly = true; 
+                        correctCount++;
+                    } else {
+                        // ZAWSZE OZNACZ JAKO BŁĄD JEŚLI NIE JEST POPRAWNE (nawet puste)
+                        input.classList.add('incorrect');
+                    }
+                }
+            });
+
+            // Oblicz wynik
+            const percentage = isAdmin ? 100 : (totalInputs > 0 ? Math.round((correctCount / totalInputs) * 100) : 0);
+            
+            // Aktualizacja paska dolnego
+            updateScoreDisplay(percentage);
+            
+            // Wyświetlenie modala (opcjonalne, ale zostawiam dla pełnego efektu)
+            showModal(percentage);
+
+        } catch (e) {
+            console.error(e);
+            alert("Błąd skryptu: " + e.message);
+        }
+    }
+
+    function updateScoreDisplay(percentage) {
+        const scoreEl = document.getElementById('scoreDisplay');
+        scoreEl.innerText = `Wynik: ${percentage}%`;
+        
+        // Zmiana koloru badge'a w zależności od wyniku
+        scoreEl.classList.remove('text-success', 'text-warning', 'text-danger', 'border-success', 'border-warning', 'border-danger');
+        
+        if (percentage === 100) {
+            scoreEl.classList.add('text-success', 'border-success', 'bg-success-subtle');
+            scoreEl.style.backgroundColor = '#d1e7dd';
+        } else if (percentage >= 50) {
+            scoreEl.classList.add('text-primary', 'border-primary');
+            scoreEl.style.backgroundColor = '#cfe2ff';
+        } else {
+            scoreEl.classList.add('text-danger', 'border-danger');
+            scoreEl.style.backgroundColor = '#f8d7da';
+        }
+    }
+
+    function fillCorrectAnswer(input, correctVal) {
+        const valStr = correctVal.toString().replace(',', '.');
+        if (correctVal.includes('*') || isNaN(parseFloat(valStr))) {
+             input.value = correctVal;
+        } else {
+            let val = parseFloat(valStr);
+            if (input.name.endsWith('_p') && val < 0.001) {
+                input.value = "<0,001";
+            } else {
+                input.value = val.toFixed(2).replace('.', ',');
+            }
+        }
+        input.classList.remove('incorrect');
+        input.classList.add('correct');
+    }
+
+    function isCorrect(userVal, correctVal, inputName) {
+        if (!userVal || correctVal === undefined || correctVal === null || correctVal === "") return false;
+        
+        let u = userVal.toString().replace(/\s/g, '').replace(',', '.');
+        let c = correctVal.toString().replace(/\s/g, '').replace(',', '.');
+        
+        if (u.toLowerCase() === c.toLowerCase()) return true;
+
+        let uNum = parseFloat(u);
+        let cNum = parseFloat(c);
+
+        if (inputName && inputName.endsWith('_p') && !isNaN(cNum) && cNum < 0.001) {
+             if (u.includes('<')) return true; 
+             if (!isNaN(uNum) && uNum <= 0.001) return true;
+        }
+
+        if (!isNaN(uNum) && !isNaN(cNum)) {
+            return Math.abs(uNum - cNum) <= 0.1; // Tolerancja 0.1
+        }
+        return false;
+    }
+
+    function showModal(percentage) {
+        const modal = document.getElementById('resultModal');
+        const titleEl = document.getElementById('modalTitle');
+        const msgEl = document.getElementById('modalMessage');
+        const iconEl = document.getElementById('modalIcon');
+
+        let title, message, icon;
+        if (percentage === 100) {
+            title = "Perfekcyjnie!";
+            message = `Gratulacje! Wynik: <span class="text-success fw-bold fs-4">${percentage}%</span>.`;
+            icon = `<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#198754" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+        } else if (percentage >= 50) {
+            title = "Dobra robota!";
+            message = `Twój wynik: <span class="text-primary fw-bold fs-4">${percentage}%</span>.`;
+            icon = `<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M16 16s-1.5-2-4-2-4 2-4 2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>`;
+        } else {
+            title = "Spróbuj jeszcze raz";
+            message = `Twój wynik: <span class="text-danger fw-bold fs-4">${percentage}%</span>.`;
+            icon = `<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`;
+        }
+
+        titleEl.innerHTML = title;
+        msgEl.innerHTML = message;
+        iconEl.innerHTML = icon;
+
+        modal.style.display = 'block'; // Proste wyświetlanie
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('resultModal');
+        modal.style.display = 'none';
+    }
+
+    function exportToWord() {
+        try {
+            // Pobieramy TYLKO kontener raportu - przyciski są teraz poza nim,
+            // więc nie zostaną skopiowane :)
+            const reportContent = document.querySelector('.report-container').cloneNode(true);
+            
+            // Zamiana inputów na tekst
+            const inputs = reportContent.querySelectorAll('input');
+            inputs.forEach(input => {
+                const originalInput = document.querySelector(`input[name="${input.name}"]`);
+                if (originalInput) {
+                    const span = document.createElement('span');
+                    span.textContent = originalInput.value || '\u00A0'; 
+                    input.parentNode.replaceChild(span, input);
+                }
+            });
+
+            // Zamiana selectów na tekst
+            const selects = reportContent.querySelectorAll('select');
+            selects.forEach(select => {
+                const originalSelect = document.querySelector(`select[name="${select.name}"]`);
+                if (originalSelect) {
+                    const span = document.createElement('span');
+                    const selectedOption = originalSelect.options[originalSelect.selectedIndex];
+                    span.textContent = selectedOption ? selectedOption.text : '';
+                    select.parentNode.replaceChild(span, select);
+                }
+            });
+
+            // Usuwanie ewentualnych pozostałości interaktywnych (gdyby coś zostało)
+            // W nowym układzie przyciski są w .bottom-action-bar, więc tutaj ich nie ma.
+            
+            const styles = document.querySelector('style').innerHTML;
+            const html = `
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                <head><meta charset='utf-8'><title>Raport</title>
+                <style>${styles} body { font-family: 'Times New Roman', serif; } table { border-collapse: collapse; } td { border: none; } th { border-top: none; border-left: none; border-right: none; }</style>
+                </head><body>${reportContent.innerHTML}</body></html>`;
+
+            const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'Raport_Statystyczny_{{ user_id }}.doc';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (e) {
+            alert("Błąd eksportu: " + e.message);
+        }
+    }
+
+    function saveFormData() {
+        try {
+            const form = document.getElementById('statsForm');
+            const formData = new FormData(form);
+            const data = {};
+            formData.forEach((value, key) => { data[key] = value; });
+            localStorage.setItem('form_data_{{ user_id }}', JSON.stringify(data));
+        } catch(e) {}
+    }
+
+    function restoreFormData() {
+        try {
+            const savedData = localStorage.getItem('form_data_{{ user_id }}');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                const form = document.getElementById('statsForm');
+                Object.keys(data).forEach(key => {
+                    const input = form.elements[key];
+                    if (input && !input.classList.contains('correct')) { 
+                        input.value = data[key];
+                    }
+                });
+            }
+        } catch(e) {}
+    }
+</script>
+
+</body>
+</html>

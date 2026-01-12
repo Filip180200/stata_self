@@ -4,12 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zadanie Statystyczne - Raport</title>
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome (Ikony) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
         body {
             background-color: #f4f4f4;
-            padding-bottom: 120px; /* Miejsce na dolny pasek */
+            padding-bottom: 180px; /* Zwiększone miejsce na dolny pasek z footerem */
         }
         .report-container {
             font-family: 'Times New Roman', Times, serif;
@@ -92,21 +95,55 @@
             color: #333;
         }
 
-        /* --- DOLNY PASEK NARZĘDZIOWY --- */
-        .bottom-action-bar {
+        /* --- DOLNY PANEL (Kontener na przyciski i footer) --- */
+        .fixed-bottom-panel {
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
+            z-index: 1000;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .action-bar {
             background-color: #ffffff;
             border-top: 1px solid #e0e0e0;
-            box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
-            padding: 15px 0;
-            z-index: 1000;
+            padding: 10px 0;
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 20px;
+        }
+
+        footer {
+            background-color: #212529; /* Ciemne tło dla footera */
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 5px;
+        }
+
+        .social-icons a {
+            transition: transform 0.2s;
+        }
+        
+        .social-icons a:hover {
+            transform: scale(1.2);
         }
 
         .score-badge {
@@ -340,11 +377,37 @@
     </form>
 </div>
 
-<!-- DOLNY PASEK NARZĘDZIOWY -->
-<div class="bottom-action-bar">
-    <div id="scoreDisplay" class="score-badge">Wynik: --%</div>
-    <button type="button" onclick="checkAnswers()" class="btn btn-success btn-lg shadow-sm">✅ Sprawdź!</button>
-    <button type="button" onclick="exportToWord()" class="btn btn-primary btn-lg shadow-sm">💾 Zapisz do Worda</button>
+<!-- DOLNY PANEL NARZĘDZIOWY I STOPKA -->
+<div class="fixed-bottom-panel">
+    
+    <!-- Pasek akcji z przyciskami -->
+    <div class="action-bar">
+        <div id="scoreDisplay" class="score-badge">Wynik: --%</div>
+        <button type="button" onclick="checkAnswers()" class="btn btn-success btn-lg shadow-sm">
+            <i class="fa-solid fa-check"></i> Sprawdź!
+        </button>
+        <button type="button" onclick="exportToWord()" class="btn btn-primary btn-lg shadow-sm">
+            <i class="fa-solid fa-file-word"></i> Zapisz do Worda
+        </button>
+        <a href="https://www.youtube.com/watch?v=OwWyf9SLHjA&pp=ygUXbGllYmVyc2JhY2ggZmlsaXAgc3BzcyA%3D" target="_blank" class="btn btn-danger btn-lg shadow-sm">
+            <i class="fa-brands fa-youtube"></i> Tutorial YT
+        </a>
+    </div>
+
+    <!-- Stopka autorska -->
+    <footer style="padding: 5px 0;">
+        <div class="footer-content" style="pointer-events: auto; flex-direction: row; gap: 15px;">
+            <div class="social-icons" style="margin-bottom: 0;">
+                <a href="https://www.youtube.com/@lieberfilip" target="_blank"><i class="fa-brands fa-youtube" style="color:white; font-size: 16px;"></i></a>
+                <a href="https://www.linkedin.com/in/liebersbach-filip/" target="_blank"><i class="fab fa-linkedin" style="color:white; font-size: 16px;"></i></a>
+                <a href="https://www.researchgate.net/profile/Filip-Liebersbach-2?ev=hdr_xprf" target="_blank"><i class="fa-brands fa-researchgate" style="color:white; font-size: 16px;"></i></a>
+            </div>
+            <div class="contact-info" style="font-size: 0.7em;">
+                <a href="mailto:kontakt@lieberfilip.pl" style="color: white; text-decoration: underline;">kontakt@lieberfilip.pl</a>
+            </div>
+        </div>
+        <div class="copyright" style="font-size: 0.6em; margin-top: 2px;">© 2026 Filip Liebersbach. Wszelkie prawa zastrzeżone.</div>
+    </footer>
 </div>
 
 <!-- MODAL / POPUP -->
